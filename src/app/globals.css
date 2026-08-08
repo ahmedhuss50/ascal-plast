@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-app: "Segoe UI", "Tahoma", system-ui, sans-serif;
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  background: #f5f7fa;
+  color: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Logical properties so spacing flips correctly in RTL/LTR */
+.card {
+  @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+}
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition disabled:opacity-60;
+}
+.btn-primary {
+  @apply btn bg-brand text-white hover:bg-brand-light;
+}
+.btn-ghost {
+  @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200;
+}
+.input {
+  @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+}
+.label {
+  @apply block text-sm font-medium text-slate-600 mb-1;
+}
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+.th {
+  @apply px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-slate-500;
+}
+.td {
+  @apply px-4 py-3 text-sm text-slate-700;
+}
