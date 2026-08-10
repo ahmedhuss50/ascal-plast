@@ -3,6 +3,7 @@ import type { Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui";
 import ProfilesManager from "./ProfilesManager";
+import AddUserForm from "./AddUserForm";
 import type { Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function RepsPage({ params }: { params: { locale: Locale } 
           ? "المستخدمون يُنشأون من لوحة Supabase (Authentication)، ثم تُحدَّد أدوارهم هنا"
           : "Users are created in the Supabase dashboard (Authentication); set their roles here"}
       />
+      <AddUserForm locale={params.locale} />
       <ProfilesManager locale={params.locale} dict={d} initial={rows} />
     </>
   );
