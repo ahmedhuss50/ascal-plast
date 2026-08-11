@@ -1,164 +1,120 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { parseProductionMessage, type ParsedReport } from "@/lib/whatsapp-parse";
-import { saveReport } from "./actions";
+import { parseProductionMessage } from "@/lib/whatsapp-parse";
 import type { Locale } from "@/i18n/config";
+import { StatCard } from "@/components/ui";
 
-const T = {
-  ar: {
-    groupTitle: "مجموعة إنتاج المصنع",
-    silent: "المساعد الذكي يقرأ الرسائل بصمت",
-    tryTitle: "جرّب المساعد",
-    tryHint: "اكتب رسالة كما يكتبها المشرف في المجموعة، وسيحوّلها المساعد إلى بيانات منظّمة.",
-    analyze: "حلّل الرسالة",
-    save: "حفظ في اللوحة",
-    saving: "جارٍ الحفظ…",
-    saved: "تم الحفظ — ظهر في المتابعة بالأسفل",
-    extracted: "البيانات المستخرجة",
-    order: "رقم الطلب",
-    line: "الخط",
-    product: "المنتج",
-    qty: "الكمية",
-    scrap: "الهالك %",
-    status: "الحالة",
-    issue: "مشكلة/ملاحظة",
-    confidence: "دقة الاستخراج",
-    none: "—",
-    sender: "المشرف",
-  },
-  en: {
-    groupTitle: "Factory Production Group",
-    silent: "The AI assistant reads messages silently",
-    tryTitle: "Try the assistant",
-    tryHint: "Type a message the way a supervisor would in the group; the assistant turns it into structured data.",
-    analyze: "Analyze message",
-    save: "Save to dashboard",
-    saving: "Saving…",
-    saved: "Saved — see it in the feed below",
-    extracted: "Extracted data",
-    order: "Order",
-    line: "Line",
-    product: "Product",
-    qty: "Quantity",
-    scrap: "Scrap %",
-    status: "Status",
-    issue: "Issue/Note",
-    confidence: "Extraction confidence",
-    none: "—",
-    sender: "Supervisor",
-  },
-};
+// A realistic "in production" snapshot: a WhatsApp group stream on the left and
+// the assistant's auto-extracted production feed + summary on the right.
 
-const SAMPLE = [
-  { who: "مختار", text: "خط ٢ أنهى الطلب PO-4471، ٥٢٠٠ عبوة، الهالك ٣٪" },
-  { who: "سالم", text: "الخط الأول واقف بسبب عطل في السخان، محتاجين صيانة" },
-  { who: "مختار", text: "درام ٦٥ على خط 3 منتج 1200 قطعة والهالك 2.5%" },
+const SAMPLE: { who: string; time: string; text: string }[] = [
+  { who: "مختار", time: "٠٧:٤٥", text: "خط ٢ جاري على الطلب PO-4471، درام ٦٥" },
+  { who: "فيصل", time: "٠٩:١٠", text: "خط 3 كرسي حديقة، 1200 قطعة، الهالك 2.5%" },
+  { who: "سالم", time: "٠٩:٤٠", text: "الخط الأول واقف بسبب عطل في السخان، محتاجين صيانة" },
+  { who: "مختار", time: "١١:٣٠", text: "خط ٢ أنهى الطلب PO-4471، ٥٢٠٠ عبوة، الهالك ٣٪" },
+  { who: "سالم", time: "١٢:٠٥", text: "الخط الأول رجع قيد التشغيل بعد الصيانة" },
+  { who: "فيصل", time: "١٣:٤٠", text: "نقص ماستر باتش أزرق على خط 3" },
 ];
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+const STATUS_STYLE: Record<string, string> = {
+  "مكتمل": "bg-emerald-100 text-emerald-700",
+  "قيد التنفيذ": "bg-amber-100 text-amber-700",
+  "متوقف": "bg-rose-100 text-rose-700",
+};
+
+function Chip({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
-      <div className="text-[11px] text-slate-500">{label}</div>
-      <div className="text-sm font-semibold text-slate-800">{value}</div>
-    </div>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${tone ?? "bg-slate-100 text-slate-700"}`}>
+      <span className="opacity-60">{label}</span>
+      <span className="font-semibold">{value}</span>
+    </span>
   );
 }
 
 export default function Assistant({ locale }: { locale: Locale }) {
-  const t = T[locale];
-  const router = useRouter();
-  const [text, setText] = useState(SAMPLE[0].text);
-  const [parsed, setParsed] = useState<ParsedReport | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const ar = locale === "ar";
+  const rows = SAMPLE.map((m) => ({ ...m, p: parseProductionMessage(m.text) }));
 
-  function analyze() {
-    setSaved(false);
-    setParsed(parseProductionMessage(text));
-  }
-  async function doSave() {
-    if (!parsed) return;
-    setSaving(true);
-    await saveReport(parsed, text, { group_name: T[locale].groupTitle, sender: "مختار" });
-    setSaving(false);
-    setSaved(true);
-    router.refresh();
-  }
+  const totalUnits = rows.reduce((s, r) => s + (r.p.quantity ?? 0), 0);
+  const scraps = rows.map((r) => r.p.scrap_pct).filter((x): x is number => x != null);
+  const avgScrap = scraps.length ? (scraps.reduce((a, b) => a + b, 0) / scraps.length).toFixed(1) : "0";
+  const issues = rows.filter((r) => r.p.issue).length;
 
-  const conf = parsed ? Math.round(parsed.confidence * 100) : 0;
+  const L = {
+    liveOut: ar ? "المنتَج اليوم" : "Produced today",
+    updates: ar ? "تحديثات المجموعة" : "Group updates",
+    avgScrap: ar ? "متوسط الهالك" : "Avg scrap",
+    alerts: ar ? "تنبيهات" : "Alerts",
+    group: ar ? "مجموعة إنتاج المصنع" : "Factory Production Group",
+    silent: ar ? "المساعد الذكي يقرأ الرسائل بصمت" : "The AI assistant reads silently",
+    feed: ar ? "المتابعة اللحظية (يستخرجها المساعد)" : "Live feed (extracted by the assistant)",
+    live: ar ? "مباشر" : "LIVE",
+    order: ar ? "الطلب" : "Order",
+    line: ar ? "الخط" : "Line",
+    product: ar ? "المنتج" : "Product",
+    qty: ar ? "الكمية" : "Qty",
+    scrap: ar ? "الهالك" : "Scrap",
+    issue: ar ? "مشكلة" : "Issue",
+    sender: ar ? "المشرف" : "Supervisor",
+  };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      {/* WhatsApp-style group preview */}
-      <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-        <div className="bg-[#075E54] text-white px-4 py-3">
-          <div className="font-semibold">{t.groupTitle}</div>
-          <div className="text-[11px] text-white/70">{t.silent}</div>
+    <>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard label={L.liveOut} value={new Intl.NumberFormat(ar ? "ar-KW" : "en-US").format(totalUnits)} />
+        <StatCard label={L.updates} value={rows.length} />
+        <StatCard label={L.avgScrap} value={`${avgScrap}%`} />
+        <StatCard label={L.alerts} value={issues} accent={issues > 0} />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* WhatsApp group stream */}
+        <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm h-fit">
+          <div className="bg-[#075E54] text-white px-4 py-3">
+            <div className="font-semibold">{L.group}</div>
+            <div className="text-[11px] text-white/70">{L.silent}</div>
+          </div>
+          <div className="bg-[#ECE5DD] p-4 space-y-3">
+            {SAMPLE.map((m, i) => (
+              <div key={i} className="max-w-[88%] bg-white rounded-lg px-3 py-2 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[11px] font-bold text-emerald-700">{L.sender} {m.who}</span>
+                  <span className="text-[10px] text-slate-400" dir="ltr">{m.time}</span>
+                </div>
+                <div className="text-sm text-slate-800">{m.text}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="bg-[#ECE5DD] p-4 space-y-3 min-h-[220px]">
-          {SAMPLE.map((m, i) => (
-            <div key={i} className="max-w-[85%] bg-white rounded-lg px-3 py-2 shadow-sm">
-              <div className="text-[11px] font-bold text-emerald-700">{t.sender} {m.who}</div>
-              <div className="text-sm text-slate-800">{m.text}</div>
-            </div>
-          ))}
-          <div className="max-w-[85%] ms-auto bg-[#DCF8C6] rounded-lg px-3 py-2 shadow-sm">
-            <div className="text-[11px] font-bold text-emerald-800">🤖 {locale === "ar" ? "المساعد" : "Assistant"}</div>
-            <div className="text-sm text-slate-700">
-              {locale === "ar"
-                ? "تم تسجيل 3 تحديثات إنتاج في اللوحة ✅"
-                : "Logged 3 production updates to the dashboard ✅"}
-            </div>
+
+        {/* Assistant structured feed */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 text-rose-600 px-2 py-0.5 text-[11px] font-bold">
+              ● {L.live}
+            </span>
+            <h2 className="text-sm font-semibold text-slate-700">{L.feed}</h2>
+          </div>
+          <div className="space-y-3">
+            {rows.map((r, i) => (
+              <div key={i} className="card p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-emerald-700">🤖 {L.sender} {r.who}</span>
+                  <span className="text-[10px] text-slate-400" dir="ltr">{r.time}</span>
+                </div>
+                <div className="text-xs text-slate-500 mb-3">{r.text}</div>
+                <div className="flex flex-wrap gap-2">
+                  {r.p.order_no && <Chip label={L.order} value={r.p.order_no} tone="bg-blue-50 text-blue-700" />}
+                  {r.p.line_no && <Chip label={L.line} value={r.p.line_no} />}
+                  {r.p.product && <Chip label={L.product} value={r.p.product} />}
+                  {r.p.quantity != null && <Chip label={L.qty} value={`${r.p.quantity} ${r.p.unit ?? ""}`} />}
+                  {r.p.scrap_pct != null && <Chip label={L.scrap} value={`${r.p.scrap_pct}%`} />}
+                  {r.p.status && <Chip label="" value={r.p.status} tone={STATUS_STYLE[r.p.status]} />}
+                  {r.p.issue && <Chip label={L.issue} value={r.p.issue} tone="bg-rose-50 text-rose-700" />}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Live try box */}
-      <div className="card p-5">
-        <h3 className="font-semibold text-slate-800">{t.tryTitle}</h3>
-        <p className="text-sm text-slate-500 mb-3">{t.tryHint}</p>
-        <textarea
-          className="input min-h-[80px]"
-          value={text}
-          onChange={(e) => { setText(e.target.value); setSaved(false); }}
-        />
-        <div className="flex flex-wrap gap-2 mt-2">
-          {SAMPLE.map((m, i) => (
-            <button key={i} type="button" className="btn-ghost text-xs"
-              onClick={() => { setText(m.text); setParsed(null); setSaved(false); }}>
-              {m.text.slice(0, 18)}…
-            </button>
-          ))}
-        </div>
-        <button className="btn-primary mt-3" onClick={analyze}>{t.analyze}</button>
-
-        {parsed && (
-          <div className="mt-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-slate-700">{t.extracted}</span>
-              <span className="text-xs text-slate-500">{t.confidence}: {conf}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-slate-100 overflow-hidden mb-4">
-              <div className={`h-full ${conf >= 80 ? "bg-emerald-500" : conf >= 50 ? "bg-amber-500" : "bg-rose-500"}`} style={{ width: `${conf}%` }} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Field label={t.order} value={parsed.order_no ?? t.none} />
-              <Field label={t.line} value={parsed.line_no ?? t.none} />
-              <Field label={t.product} value={parsed.product ?? t.none} />
-              <Field label={t.qty} value={parsed.quantity ? `${parsed.quantity} ${parsed.unit ?? ""}` : t.none} />
-              <Field label={t.scrap} value={parsed.scrap_pct != null ? `${parsed.scrap_pct}%` : t.none} />
-              <Field label={t.status} value={parsed.status ?? t.none} />
-              <div className="col-span-2"><Field label={t.issue} value={parsed.issue ?? t.none} /></div>
-            </div>
-            <button className="btn-primary mt-4" disabled={saving} onClick={doSave}>
-              {saving ? t.saving : t.save}
-            </button>
-            {saved && <p className="text-sm text-emerald-600 mt-2">{t.saved}</p>}
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 }
