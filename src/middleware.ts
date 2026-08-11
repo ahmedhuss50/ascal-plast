@@ -1,14 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
-  // Redirect bare root to default locale
+// Open mode: no auth gate. Just send the bare root to the dashboard.
+export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/ar/dashboard";
     return NextResponse.redirect(url);
   }
-  return await updateSession(request);
+  return NextResponse.next();
 }
 
 export const config = {

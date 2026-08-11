@@ -10,11 +10,13 @@ export default function Topbar({
   dict,
   name,
   roleLabel,
+  guest = false,
 }: {
   locale: Locale;
   dict: Dictionary;
   name: string;
   roleLabel: string;
+  guest?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -51,9 +53,15 @@ export default function Topbar({
           <div className="text-sm font-semibold text-slate-800 leading-tight">{name}</div>
           <div className="text-[11px] text-slate-500">{roleLabel}</div>
         </div>
-        <button onClick={logout} className="btn-primary text-xs">
-          {dict.auth.logout}
-        </button>
+        {guest ? (
+          <a href={`/${locale}/login`} className="btn-ghost text-xs">
+            {dict.auth.login}
+          </a>
+        ) : (
+          <button onClick={logout} className="btn-primary text-xs">
+            {dict.auth.logout}
+          </button>
+        )}
       </div>
     </header>
   );
