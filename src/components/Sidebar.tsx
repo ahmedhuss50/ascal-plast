@@ -31,7 +31,9 @@ export default function Sidebar({
   role: UserRole;
 }) {
   const pathname = usePathname();
-  const items = ITEMS.filter((i) => i.roles.includes(role));
+  // Minimal menu for now. To bring an item back, add its `href` to this set.
+  const VISIBLE = new Set(["dashboard", "orders", "customers", "production-report"]);
+  const items = ITEMS.filter((i) => VISIBLE.has(i.href) && i.roles.includes(role));
 
   return (
     <aside className="w-60 shrink-0 bg-white border-e border-slate-200 min-h-screen p-4 hidden md:block">
