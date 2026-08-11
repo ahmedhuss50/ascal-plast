@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
@@ -29,7 +30,15 @@ export default async function CustomerDetailPage({ params }: { params: { locale:
 
   return (
     <>
-      <PageHeader title={`${ar ? "العميل" : "Customer"} — ${customer.name}`} subtitle={ar ? "تعديل بيانات المتجر والفروع" : "Edit store details and branches"} />
+      <PageHeader
+        title={`${ar ? "العميل" : "Customer"} — ${customer.name}`}
+        subtitle={ar ? "تعديل بيانات المتجر والفروع" : "Edit store details and branches"}
+        action={
+          <Link href={`/${params.locale}/customers/${params.id}/kyc`} className="btn-primary">
+            {ar ? "نموذج فتح الحساب (KYC)" : "Account form (KYC)"}
+          </Link>
+        }
+      />
 
       <EditCustomerForm locale={params.locale} dict={d} customer={customer} />
 
