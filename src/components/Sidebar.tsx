@@ -18,6 +18,7 @@ const ITEMS: Item[] = [
   { key: "rawMaterials", href: "raw-materials", roles: ["owner", "manager", "production"], icon: "⚗️" },
   { key: "reps", href: "reps", roles: ["owner", "manager"], icon: "🧑‍💼" },
   { key: "reports", href: "reports", roles: ["owner", "manager"], icon: "📊" },
+  { key: "prodReport", href: "production-report", roles: ["owner", "manager", "production"], icon: "📈" },
 ];
 
 export default function Sidebar({

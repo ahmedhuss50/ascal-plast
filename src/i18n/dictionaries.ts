@@ -13,6 +13,7 @@ const ar = {
     orders: "الطلبات",
     production: "الإنتاج",
     reports: "التقارير",
+    prodReport: "تقارير الإنتاج",
   },
   auth: {
     login: "تسجيل الدخول",
@@ -120,6 +121,7 @@ const en: typeof ar = {
     orders: "Orders",
     production: "Production",
     reports: "Reports",
+    prodReport: "Production Reports",
   },
   auth: {
     login: "Login",
