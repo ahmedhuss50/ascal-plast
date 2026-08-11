@@ -19,6 +19,7 @@ const ITEMS: Item[] = [
   { key: "reps", href: "reps", roles: ["owner", "manager"], icon: "🧑‍💼" },
   { key: "reports", href: "reports", roles: ["owner", "manager"], icon: "📊" },
   { key: "prodReport", href: "production-report", roles: ["owner", "manager", "production"], icon: "📈" },
+  { key: "settings", href: "settings", roles: ["owner", "manager", "order_desk", "production", "rep"], icon: "⚙️" },
 ];
 
 export default function Sidebar({
@@ -32,7 +33,7 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
   // Minimal menu for now. To bring an item back, add its `href` to this set.
-  const VISIBLE = new Set(["dashboard", "orders", "customers", "production-report"]);
+  const VISIBLE = new Set(["dashboard", "orders", "customers", "production-report", "settings"]);
   const items = ITEMS.filter((i) => VISIBLE.has(i.href) && i.roles.includes(role));
 
   return (

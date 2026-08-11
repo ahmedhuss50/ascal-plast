@@ -14,6 +14,7 @@ const ar = {
     production: "الإنتاج",
     reports: "التقارير",
     prodReport: "تقارير الإنتاج",
+    settings: "الإعدادات",
   },
   auth: {
     login: "تسجيل الدخول",
@@ -122,6 +123,7 @@ const en: typeof ar = {
     production: "Production",
     reports: "Reports",
     prodReport: "Production Reports",
+    settings: "Settings",
   },
   auth: {
     login: "Login",
