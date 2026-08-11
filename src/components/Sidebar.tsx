@@ -44,7 +44,7 @@ export default function Sidebar({
     <aside className="w-60 shrink-0 bg-white border-e border-slate-200 min-h-screen p-4 hidden md:block">
       <div className="mb-8 px-2 pt-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.svg" alt="Ascal" className="w-36 mx-auto h-auto block" />
+        <img src="/logo.png" alt="Ascal" className="w-36 mx-auto h-auto block" />
         <div className="text-[11px] text-slate-400 mt-2 text-center">{dict.appTagline}</div>
       </div>
       <nav className="space-y-1">

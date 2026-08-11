@@ -10,7 +10,7 @@ export default function LoginPage({ params }: { params: { locale: Locale } }) {
         <div className="text-center mb-6">
           <div className="mx-auto mb-2 w-full max-w-[240px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Ascal Houseware" className="w-full h-auto block" />
+            <img src="/logo.png" alt="Ascal Houseware" className="w-full h-auto block" />
           </div>
           <p className="text-sm text-slate-500">{d.appTagline}</p>
         </div>
