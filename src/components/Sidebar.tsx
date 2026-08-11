@@ -34,12 +34,12 @@ export default function Sidebar({
 
   return (
     <aside className="w-60 shrink-0 bg-brand text-white min-h-screen p-4 hidden md:block">
-      <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="grid place-items-center w-9 h-9 rounded-lg bg-white/15 font-bold">AP</div>
-        <div>
-          <div className="font-bold leading-tight">{dict.appName}</div>
-          <div className="text-[11px] text-white/60">{dict.appTagline}</div>
+      <div className="mb-8 px-1">
+        <div className="rounded-lg overflow-hidden bg-black">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Ascal" className="w-full h-auto block" />
         </div>
+        <div className="text-[11px] text-white/60 mt-2 text-center">{dict.appTagline}</div>
       </div>
       <nav className="space-y-1">
         {items.map((i) => {
