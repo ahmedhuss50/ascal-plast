@@ -8,9 +8,9 @@ export default function LoginPage({ params }: { params: { locale: Locale } }) {
     <main className="min-h-screen grid place-items-center px-4 bg-gradient-to-br from-brand-soft to-white">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="mx-auto mb-3 w-full max-w-[260px] rounded-2xl overflow-hidden bg-black shadow-md">
+          <div className="mx-auto mb-2 w-full max-w-[240px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Ascal Housewares" className="w-full h-auto block" />
+            <img src="/logo.svg" alt="Ascal Houseware" className="w-full h-auto block" />
           </div>
           <p className="text-sm text-slate-500">{d.appTagline}</p>
         </div>

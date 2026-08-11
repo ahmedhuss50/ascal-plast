@@ -34,13 +34,11 @@ export default function Sidebar({
   const items = ITEMS.filter((i) => i.roles.includes(role));
 
   return (
-    <aside className="w-60 shrink-0 bg-brand text-white min-h-screen p-4 hidden md:block">
-      <div className="mb-8 px-1">
-        <div className="rounded-lg overflow-hidden bg-black">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Ascal" className="w-full h-auto block" />
-        </div>
-        <div className="text-[11px] text-white/60 mt-2 text-center">{dict.appTagline}</div>
+    <aside className="w-60 shrink-0 bg-white border-e border-slate-200 min-h-screen p-4 hidden md:block">
+      <div className="mb-8 px-2 pt-2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.svg" alt="Ascal" className="w-36 mx-auto h-auto block" />
+        <div className="text-[11px] text-slate-400 mt-2 text-center">{dict.appTagline}</div>
       </div>
       <nav className="space-y-1">
         {items.map((i) => {
@@ -51,7 +49,7 @@ export default function Sidebar({
               key={i.href}
               href={href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${
-                active ? "bg-white/20 font-semibold" : "text-white/80 hover:bg-white/10"
+                active ? "bg-brand/10 text-brand font-semibold" : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               <span className="text-base w-5 text-center">{i.icon}</span>
