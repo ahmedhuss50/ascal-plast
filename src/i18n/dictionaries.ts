@@ -14,6 +14,7 @@ const ar = {
     production: "الإنتاج",
     reports: "التقارير",
     prodReport: "تقارير الإنتاج",
+    whatsapp: "مساعد الواتساب",
     settings: "الإعدادات",
   },
   auth: {
@@ -123,6 +124,7 @@ const en: typeof ar = {
     production: "Production",
     reports: "Reports",
     prodReport: "Production Reports",
+    whatsapp: "WhatsApp Assistant",
     settings: "Settings",
   },
   auth: {
